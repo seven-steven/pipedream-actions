@@ -1,7 +1,7 @@
 import { Client } from "@notionhq/client"
 export default defineComponent({
   name: 'Archive Or Update duplicate records in Notion database',
-  version: '0.0.2',
+  version: '0.0.3',
   key: 'archive-or-update-duplicate-records-in-notion-database',
   description: "Query records with specified Filter and Sorts, and then archive Or update duplicate records.",
   type: 'action',
@@ -25,9 +25,15 @@ export default defineComponent({
       optional: true,
       description: 'This sort orders the database query by a particular property. [See the docs](https://developers.notion.com/reference/post-database-query-sort#sort-object)',
     },
-    update_property: {
+    update_property_for_duplicate_records: {
       type: 'string',
-      label: "Update Property",
+      label: "Update Property For **duplicate** records",
+      optional: true,
+      description: 'Update all records except the first one. This will be ignored if \'Archive Duplicates\' is specified.',
+    },
+    update_property_for_remain_records: {
+      type: 'string',
+      label: "Update Property For **remain** records",
       optional: true,
       description: 'Update all records except the first one. This will be ignored if \'Archive Duplicates\' is specified.',
     },
@@ -64,29 +70,35 @@ export default defineComponent({
         this.sorts = JSON.parse(this.sorts);
       }
 
-      if (Boolean(this.update_property) && typeof this.update_property !== 'object') {
-        this.update_property = JSON.parse(this.update_property);
+      if (Boolean(this.update_property_for_duplicate_records) && typeof this.update_property_for_duplicate_records !== 'object') {
+        this.update_property_for_duplicate_records = JSON.parse(this.update_property_for_duplicate_records);
+      }
+
+      if (Boolean(this.update_property_for_remain_records) && typeof this.update_property_for_remain_records !== 'object') {
+        this.update_property_for_remain_records = JSON.parse(this.update_property_for_remain_records);
       }
     },
 
-    async update_duplicated_entry(entry) {
+    async update_entry(entry, properties) {
       if (!Boolean(entry)) {
         return;
       }
+
+      if (!Boolean(properties)) {
+        return;
+      }
+
       return await this.notion_client.pages.update({
         page_id: entry.id,
-        properties: this.update_property,
+        properties,
       })
     },
 
-    async update_duplicated_records(records) {
-      if (!Boolean(records)) {
-        return;
-      }
-      await Promise.all(records.map(async e => await this.update_duplicated_entry(e)));
+    async update_duplicate_records(records) {
+      await Promise.all(records.map(async e => await this.update_entry(e, this.update_property_for_duplicate_records)));
     },
 
-    async archive_duplicated_records(records) {
+    async archive_duplicate_records(records) {
       if (!Boolean(records)) {
         return;
       }
@@ -96,13 +108,13 @@ export default defineComponent({
       })));
     },
 
-    async solve_duplicated_records(records) {
+    async solve_duplicate_records(records) {
       if (this.archive_duplicates) {
-        await this.archive_duplicated_records(records);
+        await this.archive_duplicate_records(records);
         return;
       }
-      if (Boolean(this.update_property)) {
-        await this.update_duplicated_records(records);
+      if (Boolean(this.update_property_for_duplicate_records)) {
+        await this.update_duplicate_records(records);
         return;
       }
     }
@@ -113,14 +125,22 @@ export default defineComponent({
 
     let query_duplicated_records = await this.query_duplicated_records();
     console.log(query_duplicated_records)
-    let duplicated_records = query_duplicated_records.results;
-    if (!Boolean(duplicated_records)) {
+    let duplicate_records = query_duplicated_records.results;
+    if (!Boolean(duplicate_records)) {
       return;
     }
-    let remain_entry = await duplicated_records.shift();
-    if (duplicated_records.length > 0) {
-      await this.solve_duplicated_records(duplicated_records);
+    let remain_record = await duplicate_records.shift();
+    if (duplicate_records.length > 0) {
+      await this.solve_duplicated_records(duplicate_records);
     }
-    return remain_entry;
+
+    if (Boolean(this.update_property_for_remain_records)) {
+      remain_record = await this.update_entry(remain_record, this.update_property_for_remain_records);
+    }
+
+    return {
+      remain_record,
+      duplicate_records
+    };
   },
 })
