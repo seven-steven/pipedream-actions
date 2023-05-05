@@ -1,7 +1,7 @@
 import { Client } from "@notionhq/client"
 export default defineComponent({
   name: 'Archive Or Update duplicate records in Notion database',
-  version: '0.0.3',
+  version: '0.0.4',
   key: 'archive-or-update-duplicate-records-in-notion-database',
   description: "Query records with specified Filter and Sorts, and then archive Or update duplicate records.",
   type: 'action',
@@ -17,7 +17,7 @@ export default defineComponent({
     filter: {
       type: 'string',
       label: 'Filter',
-      description: 'filter the duplicated records based on the specified criteria. [See the docs](https://developers.notion.com/reference/post-database-query-filter#the-filter-object)',
+      description: 'filter the duplicate records based on the specified criteria. [See the docs](https://developers.notion.com/reference/post-database-query-filter#the-filter-object)',
     },
     sorts: {
       type: 'string',
@@ -33,7 +33,7 @@ export default defineComponent({
     },
     update_property_for_remain_records: {
       type: 'string',
-      label: "Update Property For **remain** records",
+      label: "Update Property For <b>remain</b> records",
       optional: true,
       description: 'Update all records except the first one. This will be ignored if \'Archive Duplicates\' is specified.',
     },
@@ -50,7 +50,7 @@ export default defineComponent({
     }
   },
   methods: {
-    async query_duplicated_records() {
+    async query_duplicate_records() {
       return await this.notion_client.databases.query({
         database_id: this.database_id,
         filter: this.filter,
@@ -123,15 +123,15 @@ export default defineComponent({
   async run({ steps, $ }) {
     this.init();
 
-    let query_duplicated_records = await this.query_duplicated_records();
-    console.log(query_duplicated_records)
-    let duplicate_records = query_duplicated_records.results;
+    let query_duplicate_records = await this.query_duplicate_records();
+    console.log(query_duplicate_records)
+    let duplicate_records = query_duplicate_records.results;
     if (!Boolean(duplicate_records)) {
       return;
     }
     let remain_record = await duplicate_records.shift();
     if (duplicate_records.length > 0) {
-      await this.solve_duplicated_records(duplicate_records);
+      await this.solve_duplicate_records(duplicate_records);
     }
 
     if (Boolean(this.update_property_for_remain_records)) {
