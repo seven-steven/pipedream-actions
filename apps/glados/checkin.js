@@ -7,17 +7,17 @@ export default defineComponent({
   description: "GLaDOS Checkin, [glados](https://1lq2b-q22hs-lpfk7-tduwv.glados.space)",
   type: 'action',
   props: {
-    authorization: {
-      type: 'string',
-      label: 'Authorization',
-      description: 'HTTP header Authorization',
-      optional: false,
-    },
     cookie: {
       type: 'string',
       label: 'Cookie',
       description: 'HTTP header Cookie',
       optional: false,
+    },
+    authorization: {
+      type: 'string',
+      label: 'Authorization',
+      description: 'HTTP header Authorization',
+      optional: true,
     },
   },
   async run({ steps, $ }) {
