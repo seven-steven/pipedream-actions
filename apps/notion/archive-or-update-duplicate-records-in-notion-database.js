@@ -12,6 +12,7 @@ export default defineComponent({
     },
     database_id: {
       type: 'string',
+      label: 'DatabaseID',
       description: 'ID of the Database',
     },
     filter: {
