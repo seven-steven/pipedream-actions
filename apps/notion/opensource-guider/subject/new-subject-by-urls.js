@@ -1,5 +1,10 @@
 import { Client } from "@notionhq/client"
 export default defineComponent({
+    name: 'New Subject By URLs',
+    version: '0.0.1',
+    key: 'new-subject-by-urls',
+    description: "New Subject By URLs",
+    type: 'action',
     props: {
         notion: {
             type: "app",
