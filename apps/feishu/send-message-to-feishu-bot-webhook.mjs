@@ -42,10 +42,16 @@ export default defineComponent({
         },
     },
     async run({ steps, $ }) {
-        const request_data = {
-            ...this.generate_sign(),
+        let request_data = {
             ...JSON.parse(this.request_data),
         }
+        if (Boolean(this.secret)) {
+            request_data = {
+                ...this.generate_sign(),
+                ...request_data,
+            }
+        }
+
         console.log(JSON.stringify(request_data));
 
         const { data } = await axios({
