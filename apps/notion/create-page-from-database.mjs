@@ -63,19 +63,3 @@ export default defineComponent({
         return await this.newPage();
     },
 })
-
-
-{
-    {
-
-
-
-        steps?.new_subject_by_urls?.$return_value.length === 0 ? '{}' : {
-            Subjects: {
-                relation: steps?.new_subject_by_urls?.$return_value.map(subject => {
-                    id: subject.id
-                })
-            }
-        }
-    }
-}
