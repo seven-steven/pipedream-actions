@@ -1,6 +1,11 @@
 // To use previous step data, pass the `steps` object to the run() function
 export default defineComponent({
   props: {
+    name: 'Access Key Available',
+    version: '0.0.1',
+    key: 'api-flash-access-key-available',
+    description: "Get an available access key from access keys user provided.",
+    type: 'action',
     access_keys: {
       type: 'string[]',
       label: 'Access Keys',
