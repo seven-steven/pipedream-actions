@@ -1,15 +1,15 @@
 // To use previous step data, pass the `steps` object to the run() function
 export default defineComponent({
+  name: 'Access Key Available',
+  version: '0.0.1',
+  key: 'api-flash-access-key-available',
+  description: "Get an available access key from access keys user provided.",
+  type: 'action',
   props: {
-    name: 'Access Key Available',
-    version: '0.0.1',
-    key: 'api-flash-access-key-available',
-    description: "Get an available access key from access keys user provided.",
-    type: 'action',
     access_keys: {
       type: 'string[]',
       label: 'Access Keys',
-      description: 'Access Keys of [ApiFlash](https://apiflash.com/), [find your Access Key](https://apiflash.com/dashboard/access_keys), [See the doc](https://apiflash.com/documentation#introduction)',
+      description: 'Access Keys of [ApiFlash](https://apiflash.com/), find your [Access Key](https://apiflash.com/dashboard/access_keys), See the [doc](https://apiflash.com/documentation#introduction)',
       optional: false,
     },
     data: {
@@ -29,24 +29,10 @@ export default defineComponent({
         access_keys = JSON.parse(assess_keys);
       }
       // 获取 key_store 中的所有 access key
-      // const data = {
-      //   access_key: {
-      //     key1: {
-      //       'X-Quota-Remaining': 0,
-      //       'X-Quota-Limit': 1000,
-      //       'X-Quota-Reset': '2021-10-01T00:00:00Z'
-      //     },
-      //     key2: {
-      //       'X-Quota-Remaining': 0,
-      //       'X-Quota-Limit': 1000,
-      //       'X-Quota-Reset': '2021-10-01T00:00:00Z'
-      //     }
-      //   }
-      // };
-      const access_keys_from_data_store = await this.data.get('access_key') || {};
+      const keystore = await this.data.get('access_key') || {};
       // 从 this.assess_keys 中过滤出不存在于 data_store 中的 access key (即没有用过的 access_key)，直接返回
       const access_keys_never_used = assess_keys.filter(key => {
-        if (access_keys_from_data_store[key]) {
+        if (keystore[key]) {
           return false;
         }
         return true;
@@ -55,20 +41,20 @@ export default defineComponent({
       if (access_keys_never_used.length > 0) {
         return access_keys_never_used[0];
       }
-      // 对 data_store 中的 access key 进行排序，按照剩余配额从大到小排序
-      const access_keys_sorted = Object.keys(access_keys_from_data_store).sort((a, b) => {
-        const quota_remaining_a = access_keys_from_data_store[a]['X-Quota-Remaining'];
-        const quota_remaining_b = access_keys_from_data_store[b]['X-Quota-Remaining'];
-        return quota_remaining_b - quota_remaining_a;
+      // 对 data_store 中的 access key 进行排序，按照剩余配额从大到小排序，如果配额相同，按照刷新时间从小到大排序
+      const access_keys_sorted = Object.keys(keystore).sort((a, b) => {
+        const quota_remaining_a = keystore[a]['x_quota_remaining'];
+        const quota_remaining_b = keystore[b]['x_quota_remaining'];
+        if (quota_remaining_a !== quota_remaining_b) {
+          return quota_remaining_b - quota_remaining_a;
+        }
+        const x_quota_reset_a = keystore[a]['x_quota_reset'];
+        const x_quota_reset_b = keystore[b]['x_quota_reset'];
+        return x_quota_reset_a - x_quota_reset_b;
       });
-      // 获取剩余配额最大的 access key
+      // 获取剩余配额最大 / 刷新时间最近的 access key
       const access_key = access_keys_sorted[0];
-      // 如果剩余配额大于 0，就直接返回
-      if (access_keys_from_data_store[access_key]['X-Quota-Remaining'] > 0) {
-        return access_key;
-      }
-      // 如果剩余配额小于 1，就返回 null
-      return null;
+      return access_key;
     },
   },
   async run({ steps, $ }) {

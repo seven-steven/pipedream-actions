@@ -2,16 +2,16 @@ import axios from 'axios';
 
 // To use previous step data, pass the `steps` object to the run() function
 export default defineComponent({
+  name: 'Url2Pic',
+  version: '0.0.1',
+  key: 'api-flash-url2pic',
+  description: "Capture screenshot of URL and return url of the screenshot",
+  type: 'action',
   props: {
-    name: 'Url2Pic',
-    version: '0.0.1',
-    key: 'api-flash-url2pic',
-    description: "Capture screenshot of URL and return url of the screenshot",
-    type: 'action',
     access_key: {
       type: 'string',
       label: 'Access Key',
-      description: 'Access Keys of [ApiFlash](https://apiflash.com/), [find your Access Key](https://apiflash.com/dashboard/access_keys), [See the doc](https://apiflash.com/documentation#introduction)',
+      description: 'Access Keys of [ApiFlash](https://apiflash.com/), find your [Access Key](https://apiflash.com/dashboard/access_keys), See the [doc](https://apiflash.com/documentation#introduction)',
     },
     url: {
       type: 'string',
@@ -21,7 +21,7 @@ export default defineComponent({
     params: {
       type: 'string',
       label: 'Params',
-      description: 'Additional JSON Params of [ApiFlash](https://apiflash.com/), [See the doc](https://apiflash.com/documentation#introduction)',
+      description: 'Additional JSON Params of [ApiFlash](https://apiflash.com/), See the [doc](https://apiflash.com/documentation#introduction)',
       optional: true,
     },
   },
