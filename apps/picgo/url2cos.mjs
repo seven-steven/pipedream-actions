@@ -1,11 +1,12 @@
 import { PicGo } from 'picgo'
+import crypto from 'crypto'
 
 // To use previous step data, pass the `steps` object to the run() function
 export default defineComponent({
   name: 'Picture TO COS',
   version: '0.0.1',
   key: 'picture-of-url2tencent-cos',
-  description: "Upload picture of URL to TencentCOS",
+  description: "Upload picture of URL to TencentCOS, see the [doc](https://picgo.github.io/PicGo-Doc/zh/guide/config.html#%E8%85%BE%E8%AE%AF%E4%BA%91cos)",
   type: 'action',
   props: {
     urls: {
@@ -56,7 +57,7 @@ export default defineComponent({
       description: 'Version of Tencent COS',
       optional: true,
       options: [
-        { label: 'v5', value: 'v5', selected: true },
+        { label: 'v5', value: 'v5' },
         { label: 'v4', value: 'v4' },
       ],
       default: 'v5',
@@ -99,7 +100,8 @@ export default defineComponent({
 
     picgo.on('beforeUpload', ctx => {
       ctx.output.forEach(file => {
-        file.fileName = `${Date.now()}${file.extname}`;
+        const md5 = crypto.createHash('md5').update(file.buffer).digest('hex');
+        file.fileName = `${md5}${file.extname}`;
       })
     })
 
