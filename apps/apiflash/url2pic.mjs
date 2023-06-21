@@ -3,7 +3,7 @@ import axios from 'axios';
 // To use previous step data, pass the `steps` object to the run() function
 export default defineComponent({
   name: 'Url2Pic',
-  version: '0.0.1',
+  version: '0.0.3',
   key: 'api-flash-url2pic',
   description: "Capture screenshot of URL and return url of the screenshot",
   type: 'action',
@@ -54,6 +54,12 @@ export default defineComponent({
   },
   async run({ steps, $ }) {
     const screenshot = await this.screenshot();
-    return screenshot;
+    console.log(screenshot);
+    return {
+      url: screenshot.data.url,
+      x_quota_remaining: screenshot.headers['x-quota-remaining'],
+      x_quota_limit: screenshot.headers['x-quota-limit'],
+      x_quota_reset: screenshot.headers['x-quota-reset'],
+    };
   },
 })
