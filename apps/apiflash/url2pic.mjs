@@ -36,7 +36,21 @@ export default defineComponent({
           ...additional_params,
         },
       })
-    }
+    },
+    async screenshotToBase64() {
+      const additional_params = Boolean(this.params) ? JSON.parse(this.params) : {};
+      const response = await axios({
+        url: `https://api.apiflash.com/v1/urltoimage`,
+        params: {
+          access_key: this.access_key,
+          url: this.url,
+          response_type: 'image',
+          ...additional_params,
+        },
+      })
+      const base64Data = Buffer.from(response.data, 'binary').toString('base64');
+      return `data:${response.headers['content-type']};base64,${base64Data}`;
+    },
   },
   async run({ steps, $ }) {
     const screenshot = await this.screenshot();
