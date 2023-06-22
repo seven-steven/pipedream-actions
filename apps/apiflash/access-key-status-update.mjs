@@ -1,7 +1,7 @@
 // To use previous step data, pass the `steps` object to the run() function
 export default defineComponent({
   name: 'Access Key Status Update',
-  version: '0.0.1',
+  version: '0.0.2',
   key: 'api-flash-access-key-status-update',
   description: "Update Status of provided access key",
   type: 'action',
@@ -37,7 +37,9 @@ export default defineComponent({
         x_quota_remaining,
         x_quota_reset,
       };
-      await this.data.set(this.access_key, keystore);
+      await this.data.set('access_key', {
+        ...keystore
+      });
     },
   },
   async run({ steps, $ }) {
