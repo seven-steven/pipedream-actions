@@ -2,7 +2,7 @@ import axios from 'axios'
 // To use previous step data, pass the `steps` object to the run() function
 export default defineComponent({
   name: 'GLaDOS Checkin',
-  version: '0.0.1',
+  version: '0.0.2',
   key: 'glados-checkin',
   description: "GLaDOS Checkin, [glados](https://1lq2b-q22hs-lpfk7-tduwv.glados.space)",
   type: 'action',
@@ -19,10 +19,15 @@ export default defineComponent({
       description: 'HTTP header Authorization',
       optional: true,
     },
+    token: {
+      type: 'string',
+      label: 'Token',
+      description: 'Token in the requestBody',
+    }
   },
   async run({ steps, $ }) {
     return await axios.post('https://glados.rocks/api/user/checkin', {
-      token: 'glados.network'
+      token: this.token,
     }, {
       headers: {
         'authority': 'glados.rocks',
