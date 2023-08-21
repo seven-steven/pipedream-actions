@@ -1,6 +1,6 @@
 import { run } from "zhlint";
 
-function zhlint(text) {
+function lintZhFix(text) {
   if (!text) {
     return "";
   }
@@ -14,6 +14,6 @@ function zhlint(text) {
   return output.result;
 }
 
-export {
-  zhlint,
+export default {
+  lintZhFix,
 };

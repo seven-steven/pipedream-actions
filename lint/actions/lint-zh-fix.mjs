@@ -1,11 +1,12 @@
 import lint from "../lint.app.mjs";
-import { zhlint } from "../common/zhlint.mjs";
+import lintZhFix from "../common/lint-zh-fix.mjs";
 
 export default {
   name: "Lint and fix Chinese text",
   version: "0.0.1",
   key: "lint-zh-fix",
   description: "Lint and fix Chinese text. See the [doc](https://github.com/Jinjiang/zhlint)",
+  type: "action",
   props: {
     lint,
     text: {
@@ -14,9 +15,9 @@ export default {
       description: "Plain Text which need to be fixed.",
     },
   },
-  type: "action",
   methods: {},
   async run() {
-    return zhlint(this.text || "");
+    this.text = '你好word,真厉害'
+    return lintZhFix(this.text || "");
   },
 };
