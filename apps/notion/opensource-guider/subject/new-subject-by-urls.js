@@ -1,9 +1,9 @@
 import { Client } from "@notionhq/client"
-import { moment } from "moment-timezone"
+import moment from 'moment-timezone'
 
 export default defineComponent({
   name: 'New Subject By URLs',
-  version: '0.0.1',
+  version: '0.0.3',
   key: 'new-subject-by-urls',
   description: "New Subject By URLs",
   type: 'action',
@@ -37,7 +37,7 @@ export default defineComponent({
      * @param {string} urlList 待新增 url 列表
      * @returns
      */
-    valid_url(urlList) {
+    validUrl(urlList) {
       return urlList.filter(url => url.includes('github.com'))
         .map(url => {
           const [, owner, repo] = url.match(/github\.com\/(.+)\/(.+)/);
@@ -48,13 +48,11 @@ export default defineComponent({
       return moment().tz('Asia/Shanghai').format();
     },
     /**
-     * 过滤不合法和已存在的 URL
-     * @param {string} urlList 待新增 url 列表
-     * @returns 合法且不重复的 url 列表
+     * 根据 url 查询已存在的记录
+     * @param {string} validUrlList 待新增的合法的 url 列表
      */
-    async not_exist_url(urlList) {
-      urlList = this.valid_url(urlList);
-      const filter_urls = urlList.map(url => {
+    async duplicateRecordList(validUrlList) {
+      const filter_urls = validUrlList.map(url => {
         return {
           "property": "URL",
           "url": {
@@ -67,12 +65,22 @@ export default defineComponent({
         or: filter_urls,
       }
 
-      const dump_records = await this.notion_client().databases.query({
+      const duplicateRecordResult = await this.notion_client().databases.query({
         database_id: this.database_id,
         filter,
       });
-      const dump_urls = dump_records?.results?.map(subject => subject.properties.URL.url) || [];
-      return urlList.filter(url => !dump_urls.includes(url));
+      console.log('duplicateRecordResult', duplicateRecordResult);
+      return duplicateRecordResult?.results || [];
+    },
+    /**
+     * 过滤不合法和已存在的 URL
+     * @param {string} validUrlList 待新增的合法的 url 列表
+     * @param {notionPage} duplicateRecordList 重复的 notion 记录列表
+     * @returns 合法且不重复的 url 列表
+     */
+    notExistUrlList(validUrlList, duplicateRecordList) {
+      const dump_urls = duplicateRecordList?.map(subject => subject?.properties?.URL?.url) || [];
+      return validUrlList.filter(url => !dump_urls.includes(url)) || [];
     },
     async newSubject(parentId, url) {
       const [, owner, repo] = url.match(/https?:\/\/github\.com\/(.+)\/(.+)/);
@@ -92,7 +100,7 @@ export default defineComponent({
               name: 'Trending',
             }
           },
-          LastTrendingDate: {
+          LatestTrendingDate: {
             date: {
               start: today,
             }
@@ -109,15 +117,49 @@ export default defineComponent({
         },
       });
     },
+    async updatePage(pageId) {
+      const today = this.today();
+
+      const properties = {
+        LatestTrendingDate: {
+          date: {
+            start: today,
+          }
+        },
+      };
+      return await this.notion_client().pages.update({
+        page_id: pageId,
+        properties,
+      });
+    },
+    async updatePageList(pageList) {
+      let updatedPageList = [];
+      const pageIdList = pageList?.map(subject => subject?.id) || [];
+      await Promise.all(pageIdList.map(async (e) => {
+        const newPage = await this.updatePage(e);
+        updatedPageList.push(newPage);
+      }))
+      return updatedPageList;
+    }
   },
   async run({ steps, $ }) {
-    let newPages = [];
-    const valid_url_list = await this.not_exist_url(this.subject_url_list) || [];
-    console.log(valid_url_list);
-    await Promise.all(valid_url_list.map(async (e) => {
-      let newPage = await this.newSubject(this.database_id, e);
-      newPages.push(newPage);
+    const validUrlList = this.validUrl(this.subject_url_list) || [];
+    const duplicateRecordList = await this.duplicateRecordList(validUrlList);
+    console.log('duplicateRecordList', duplicateRecordList);
+    const notExistUrlList = this.notExistUrlList(validUrlList, duplicateRecordList);
+
+    let newPageList = [];
+    console.log(notExistUrlList);
+    await Promise.all(notExistUrlList.map(async (e) => {
+      const newPage = await this.newSubject(this.database_id, e);
+      newPageList.push(newPage);
     }));
-    return newPages;
+    // 更新已经存在的记录
+    let updatePageList = await this.updatePageList(duplicateRecordList);
+
+    return {
+      newPageList,
+      updatePageList,
+    };
   },
 })
