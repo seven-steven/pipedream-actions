@@ -70,22 +70,23 @@ export default defineComponent({
         }
       };
       picgo.setConfig(config);
+      picgo.on('beforeUpload', ctx => {
+        ctx.output.forEach(file => {
+          // const md5 = crypto.createHash('md5').update(file.buffer).digest('hex');
+          // file.fileName = `${md5}${file.extname}`;
+          const fileName = uuidv4().replaceAll('-', '');
+          file.fileName = `${fileName}${file.extname}`;
+        })
+      })
+    },
+    picgoInstance() {
+      const picgo = new PicGo('/tmp/config.json');
+      this.config(picgo);
+      return picgo;
     },
   },
   async run({ steps, $ }) {
-    const picgo = new PicGo('/tmp/config.json');
-    this.config(picgo);
-
-    picgo.on('beforeUpload', ctx => {
-      ctx.output.forEach(file => {
-        // const md5 = crypto.createHash('md5').update(file.buffer).digest('hex');
-        // file.fileName = `${md5}${file.extname}`;
-        const fileName = uuidv4().replaceAll('-', '');
-        file.fileName = `${fileName}${file.extname}`;
-      })
-    })
-
-    const result = await picgo.upload(this.urls);
-    return result;
+    const picgo = this.picgoInstance();
+    return await picgo.upload(this.urls);
   },
 })
