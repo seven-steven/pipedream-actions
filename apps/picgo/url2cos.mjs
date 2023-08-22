@@ -12,7 +12,7 @@ export default defineComponent({
     urls: {
       type: 'string[]',
       label: 'Picture URLs',
-      description: 'URL which need to be screenshot',
+      description: 'URLs of picture which need to be upload to COS',
     },
     app_id: {
       type: 'string',
