@@ -1,0 +1,67 @@
+import { PicGo } from 'picgo';
+// import PluginS3 from 'picgo-plugin-s3';
+// import PluginWebp from 'picgo-plugin-webp';
+// import MinioUploader from 'picgo-plugin-minio';
+
+// To use previous step data, pass the `steps` object to the run() function
+export default defineComponent({
+  name: 'PicGo-Core',
+  version: '0.0.1',
+  key: 'picgo-core',
+  description: "upload pictures with PicGo-Core. see the [doc](https://picgo.github.io/PicGo-Core-Doc/)",
+  type: 'action',
+  props: {
+    urls: {
+      type: 'string[]',
+      label: 'Picture URLs',
+      description: 'URLs of picture which need to be upload to by PicGo',
+    },
+    config: {
+      type: 'string',
+      label: 'PicGo Config',
+      description: 'Config of PicGo in JSON Formate, See the [doc](https://picgo.github.io/PicGo-Core-Doc/zh/guide/config.html).',
+      optional: true,
+    },
+    plugins: {
+      type: 'string[]',
+      label: 'Plugins',
+      description: 'Plugins of PicGo-Core, see the [doc](https://picgo.github.io/PicGo-Core-Doc/zh/dev-guide/cli.html), [Awesome PicGo](https://github.com/PicGo/Awesome-PicGo).',
+      optional: true,
+      // options: [
+      //   {
+      //     label: 'picgo-plugin-s3',
+      //     value: 'PluginS3',
+      //   },
+      //   {
+      //     label: 'picgo-plugin-webp',
+      //     value: 'PluginWebp',
+      //   },
+      //   {
+      //     label: 'picgo-plugin-minio',
+      //     value: 'MinioUploader',
+      //   }
+      // ],
+    }
+  },
+  methods: {
+    configPicgo(picgo) {
+      if (this.config) {
+        picgo.setConfig(JSON.parse(this.config) || {});
+      }
+    },
+    loadPlugins(picgo) {
+      if (this.plugins) {
+        this.plugins.forEach(packageName => {
+          console.log(packageName);
+        })
+      }
+    },
+  },
+  async run({ steps, $ }) {
+    const picgo = new PicGo('/tmp/config.json');
+    this.loadPlugins(picgo);
+    this.configPicgo(picgo);
+    // const result = await picgo.upload(this.urls);
+    // return result;
+  },
+})

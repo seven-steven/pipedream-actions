@@ -37,6 +37,8 @@ export default defineComponent({
       type: 'string',
       label: 'ToFormat',
       description: 'Force output to a given format. Effective only local Dir is not empty.',
+      optional: true,
+      default: 'webp',
       options: [
         'jpeg',
         'png',
@@ -49,7 +51,6 @@ export default defineComponent({
         'jxl',
         'raw',
       ],
-      optional: true,
     }
   },
   methods: {
