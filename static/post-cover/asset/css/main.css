@@ -1,0 +1,50 @@
+    @font-face {
+      font-family: 'Alimama ShuHeiTi Blod';
+      src: url('../font/AlimamaShuHeiTi-Bold.ttf');
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .cover {
+      position: relative;
+      height: 400px;
+      width: 900px;
+      background-image: url("../image/background-topic.png");
+    }
+
+    .cover img {
+      position: absolute;
+      display: block;
+    }
+
+    .logo {
+      height: 104px;
+      left: 40px;
+      top: 40px;
+    }
+
+    .type {
+      height: 121px;
+      width: 303px;
+      left: 537px;
+      top: 40px;
+    }
+
+    .title {
+      position: absolute;
+      left: 50px;
+      bottom: 40px;
+    }
+
+    .title>p {
+      font-size: 60px;
+      color: #FFFFFF;
+      font-family: 'Alimama ShuHeiTi Blod';
+      line-height: 1.2em;
+      max-width: 820px;
+      line-break: auto;
+    }

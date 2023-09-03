@@ -1,5 +1,4 @@
 import { PicGo } from 'picgo'
-// import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto'
 
 // To use previous step data, pass the `steps` object to the run() function
@@ -75,8 +74,6 @@ export default defineComponent({
         ctx.output.forEach(file => {
           const md5 = crypto.createHash('md5').update(file.buffer).digest('hex');
           file.fileName = `${md5}${file.extname}`;
-          // const fileName = uuidv4().replaceAll('-', '');
-          // file.fileName = `${fileName}${file.extname}`;
         })
       })
     },

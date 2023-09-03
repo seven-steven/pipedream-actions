@@ -1,0 +1,71 @@
+import puppeteer from 'puppeteer';
+
+// To use previous step data, pass the `steps` object to the run() function
+export default defineComponent({
+  name: 'Url ScreenShot',
+  version: '0.0.1',
+  key: 'url-screenshot',
+  description: "Url ScreenShot",
+  type: 'action',
+  props: {
+    url: {
+      type: 'string',
+      label: 'URL',
+      description: 'URL of a html webpage. eg: "https://google.com", "file://localPath/index.html"',
+    },
+    selector: {
+      type: 'string',
+      label: 'Selector',
+      description: 'Selector of the html webpage',
+      default: 'html',
+      optional: true,
+    },
+    outputFilePath: {
+      type: 'string',
+      label: 'OutputFilePath',
+      description: 'OutputFilePath, where the screenshot picture will be write in. Must start with `/tmp`, The ` png` format is preferred',
+    }
+  },
+  methods: {
+    async screenShortElement(url, selector, outputFilePath) {
+      const browser = await puppeteer.launch({
+        headless: 'new', // 使用新的 Headless 模式
+      });
+      const page = await browser.newPage();
+
+      await page.goto(url);
+
+      const elementHandle = await page.$(selector);
+
+      await elementHandle.screenshot({
+        path: outputFilePath,
+      });
+
+      await browser.close();
+    }
+  },
+  async run({ steps, $ }) {
+    const selector = this.selector || 'html';
+    const url = this.url;
+    if (!url) {
+      console.log('url must be set.');
+      return 'url must be set.';
+    }
+    const outputFilePath = this.outputFilePath;
+    if (!outputFilePath) {
+      console.log('outputFilePath must be set.');
+      return 'outputFilePath must be set.';
+    }
+    this.screenShortElement(url, selector, outputFilePath)
+      .then(() => {
+        return {
+          url,
+          outputFilePath,
+        }
+      })
+      .catch((error) => {
+        console.log('Error occurrred while taking screenshot', error);
+        return 'Error';
+      })
+  },
+})
