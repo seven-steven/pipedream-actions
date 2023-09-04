@@ -1,0 +1,69 @@
+import { createCanvas, loadImage } from 'canvas';
+import fs from 'fs';
+
+// To use previous step data, pass the `steps` object to the run() function
+export default defineComponent({
+  name: 'ImageRoundCorner',
+  version: '0.0.1',
+  key: 'image-round-corner',
+  description: "ImageRoundCorner.",
+  type: 'action',
+  props: {
+    inputFilePath: {
+      type: 'string',
+      label: 'inputFilePath',
+      description: 'inputFilePath',
+    },
+    outputFilePath: {
+      type: 'string',
+      label: 'OutputFilePath',
+      description: 'OutputFilePath',
+    },
+    cornerRadius: {
+      type: 'integer',
+      label: 'CornerRadius',
+      description: 'CornerRadius'
+    }
+  },
+  methods: {
+    async roundCornerImage(inputPath, outputPath, cornerRadius) {
+      // 创建画布
+      const canvas = createCanvas();
+      const ctx = canvas.getContext('2d');
+
+      // 载入图片
+      const image = await loadImage(inputPath);
+
+      // 设置画布尺寸与图片尺寸相同
+      canvas.width = image.width;
+      canvas.height = image.height;
+
+      // 绘制圆角图片
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(0, 0, image.width, image.height, cornerRadius || 0);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(image, 0, 0, image.width, image.height);
+      ctx.restore();
+
+      // 将圆角图片保存到输出路径
+      const pngData = canvas.toBuffer('image/png');
+      fs.writeFileSync(outputPath, pngData);
+
+      console.log('图片已成功生成！');
+      return outputPath;
+    },
+  },
+  async run({ steps, $ }) {
+    // Return data to use it in future steps
+    const inputFilePath = this.inputFilePath;
+    if (!inputFilePath) {
+      return;
+    }
+    const outputFilePath = this.outputFilePath;
+    return await this.roundCornerImage(inputFilePath, outputFilePath, cornerRadius).catch((err) => {
+      console.error('图片圆角化失败:', err);
+    });
+  },
+})
