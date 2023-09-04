@@ -45,10 +45,11 @@ export default defineComponent({
     }
   },
   methods: {
-    async svgContent2png(svgContent, pngPath) {
+    async svgFile2png(svgPath, pngPath) {
       let opts = {
         font: {
           loadSystemFonts: false,
+          logLevel: 'debug',
         }
       };
       if (this.background) {
@@ -68,7 +69,9 @@ export default defineComponent({
       }
 
       try {
-        const resvg = new Resvg(svgContent, opts);
+        const svg = fs.readFileSync(svgPath)
+
+        const resvg = new Resvg(svg, opts);
         const pngData = resvg.render();
         const pngBuffer = pngData.asPng();
 
@@ -76,16 +79,12 @@ export default defineComponent({
         // console.info('Output PNG Size  :', `${pngData.width} x ${pngData.height}`);
 
         fs.writeFileSync(pngPath, pngBuffer);
-        return outputFilePath;
+        return pngPath;
       } catch (error) {
         // 处理错误
         console.log(error);
         return;
       }
-    },
-    async svgFile2png(svgPath, pngPath) {
-      const svg = fs.readFileSync(svgPath);
-      return await this.svgContent2png(svg, pngPath);
     },
   },
   async run({ steps, $ }) {
