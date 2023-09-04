@@ -26,7 +26,7 @@ export default defineComponent({
       optional: true,
     },
     defaultFontFamily: {
-      type: 'string[]',
+      type: 'string',
       label: 'DefaultFontFamily',
       description: 'Default Font Family.',
       optional: true,
@@ -49,8 +49,8 @@ export default defineComponent({
       let opts = {
         font: {
           loadSystemFonts: false,
-          logLevel: 'debug',
-        }
+        },
+        logLevel: 'debug',
       };
       if (this.background) {
         opts.background = this.background;
@@ -70,7 +70,6 @@ export default defineComponent({
 
       try {
         const svg = fs.readFileSync(svgPath)
-
         const resvg = new Resvg(svg, opts);
         const pngData = resvg.render();
         const pngBuffer = pngData.asPng();
