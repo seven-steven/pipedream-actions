@@ -1,7 +1,7 @@
 import { run } from 'zhlint';
 export default defineComponent({
     name: 'zhlint',
-    version: '0.0.1',
+    version: '0.0.2',
     key: 'zhlint',
     description: "A linting tool for Chinese text content， see the [doc](https://github.com/Jinjiang/zhlint)",
     type: 'action',
@@ -22,7 +22,7 @@ export default defineComponent({
             const options = { rules: { preset: 'default' } };
             const output = run(text, options);
             console.log(output);
-            return output.result;
+            return (output.result || '').trim();
         },
     },
     async run({ steps, $ }) {
